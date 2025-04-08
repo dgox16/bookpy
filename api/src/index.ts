@@ -1,14 +1,27 @@
 import express from "express";
+import prisma from "./database";
 import { env } from "./config/env";
+import router from "./router";
 
 const app = express();
 
 const main = async () => {
-	app.use(express.json());
+    await prisma.$connect();
+    console.log("✅ Database connected successfully");
 
-	app.listen(env.port, () => {
-		console.log(`Server is listening on port ${env.port} ⚡`);
-	});
+    app.use(express.json());
+    const morgan = require("morgan");
+    app.use(morgan("dev"));
+
+    app.use(router);
+
+    app.listen(env.port, () => {
+        console.log(`🚀 Server is listening on port ${env.port}`);
+    });
 };
 
-main();
+main().catch(async (err) => {
+    console.error("❌ Failed to start:", err);
+    prisma.$disconnect();
+    process.exit(1);
+});
