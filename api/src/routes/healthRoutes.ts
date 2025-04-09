@@ -8,12 +8,12 @@ router.get("/healthcheck", async (_req, res) => {
     try {
         const response = await prisma.$queryRaw`SELECT 1`;
         res.status(200).json(
-            formatResponse("success", response, "The API works well"),
+            formatResponse(true, response, "The API works well"),
         );
     } catch (error) {
         console.error("Database connection error:", error);
         res.status(500).json(
-            formatResponse("error", null, "API no longer works correctly", {
+            formatResponse(false, null, "API no longer works correctly", {
                 message: error,
             }),
         );

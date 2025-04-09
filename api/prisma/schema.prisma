@@ -1,16 +1,81 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
-model Post {
-    id         Int      @id @default(autoincrement())
-    name      String
-    lastname    String
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+model Nationality {
+    code    String   @id
+    name    String
+    authors Author[]
+}
+
+model Author {
+    id              String       @id @default(cuid())
+    name            String       @unique
+    birthDate       DateTime?
+    nationality     Nationality? @relation(fields: [nationalityCode], references: [code])
+    nationalityCode String?
+    biography       String?
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    books           Book[]       @relation("AuthorBooks")
+    stories         Story[]      @relation("AuthorStories")
+}
+
+model Book {
+    id              String    @id @default(cuid())
+    title           String
+    isCompendium    Boolean   @default(false)
+    publicationDate DateTime?
+    genre           String?
+    description     String
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
+    authors         Author[]  @relation("AuthorBooks")
+    stories         Story[]   @relation("BookStories")
+    readers         Reading[] @relation("BookReading")
+}
+
+model Story {
+    id              String    @id @default(cuid())
+    title           String
+    description     String?
+    publicationDate DateTime?
+    genre           String?
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
+    authors         Author[]  @relation("AuthorStories")
+    compendium      Book?     @relation("BookStories", fields: [compendiumId], references: [id])
+    compendiumId    String?
+    readers         Reading[] @relation("StoryReading")
+}
+
+model User {
+    id        String    @id @default(cuid())
+    username  String    @unique
+    email     String    @unique
+    password  String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    readings  Reading[] @relation("UserReading")
+}
+
+model Reading {
+    id       String   @id @default(cuid())
+    userId   String
+    bookId   String?
+    storyId  String?
+    readDate DateTime @default(now())
+    rating   Int?
+
+    user  User   @relation("UserReading", fields: [userId], references: [id])
+    book  Book?  @relation("BookReading", fields: [bookId], references: [id])
+    story Story? @relation("StoryReading", fields: [storyId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

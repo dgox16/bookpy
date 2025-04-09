@@ -1,7 +1,7 @@
 import type { ApiResponse } from "../types/responseTypes";
 
 export function formatResponse<T>(
-    status: "success" | "error",
+    status: boolean,
     data: T | null = null,
     message = "",
     error: object | null = null,
