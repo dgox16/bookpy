@@ -24,6 +24,7 @@ export const getAuthors = async (_req: Request, res: Response) => {
 export const getAuthor = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+
         const author = await prisma.author.findUnique({
             where: { id },
             include: {
